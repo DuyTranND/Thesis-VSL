@@ -1,0 +1,5 @@
+/workspace/workdir/2004_liem_chinh_khoa_hoc_EfficientGCN-B0_mediapipe61/2025-06-28 15-21-27/log.txt
+/workspace/workdir/checkpoint.pth.tar
+/workspace/src/visualizer.py
+/workspace/src/model/nets.py
+/workspace/src/dataset/vsl_feeder.py
