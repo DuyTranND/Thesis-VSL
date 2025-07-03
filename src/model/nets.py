@@ -36,7 +36,7 @@ class EfficientGCN(nn.Module):
         init_param(self.modules())
 
     def forward(self, x):
-
+        
         N, I, C, T, V, M = x.size()
         x = x.permute(1, 0, 5, 2, 3, 4).contiguous().view(I, N*M, C, T, V)
 

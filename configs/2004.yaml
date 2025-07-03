@@ -1,5 +1,5 @@
 # Setting
-gpus: 0
+gpus: 
 seed: 1
 debug: False
 pretrained_path: /workspace/pretrained_models
@@ -12,7 +12,7 @@ visualization_sample: 0
 visualization_frames: []
 
 # Data Loader
-# ntu-xsub, ntu-xview, ntu-xsub120, ntu-xset120, mediapipe61
+# mediapipe61-xsub, mediapipe61, mediapipe61-xsub120, mediapipe61-xset120, mediapipe61
 dataset: mediapipe61
 dataset_args:
   mediapipe61:

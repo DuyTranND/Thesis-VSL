@@ -64,7 +64,7 @@ def load_checkpoint(work_dir, model_name='resume'):
                 logging.info('Wrong choice!')
         file_name = '{}/{}/{}.pth.tar'.format(work_dir, dirs[idx], model_name)
     try:
-        checkpoint = torch.load(file_name, map_location=torch.device('cpu'))
+        checkpoint = torch.load(file_name, map_location=torch.device('cpu'), weights_only=False)
     except:
         logging.info('')
         logging.error('Error: Wrong in loading this checkpoint: {}!'.format(file_name))

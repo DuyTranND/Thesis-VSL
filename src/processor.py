@@ -198,7 +198,7 @@ class Processor(Initializer):
         logging.info('')
 
         # Loading Data
-        x, y, names = iter(self.eval_loader).next()
+        x, y, names = next(iter(self.eval_loader))
         location = self.location_loader.load(names) if self.location_loader else []
 
         # Calculating Output

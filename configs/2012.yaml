@@ -1,9 +1,9 @@
 # Setting
-gpus: [0,1]
+gpus: 
 seed: 1
 debug: False
-pretrained_path:
-work_dir: ./workdir
+pretrained_path: /workspace/pretrained_models
+work_dir: /workspace/workdir
 no_progress_bar: False
 
 # Visualization
@@ -12,16 +12,16 @@ visualization_sample: 0
 visualization_frames: []
 
 # Data Loader
-# ntu-xsub, ntu-xview, ntu-xsub120, ntu-xset120
-dataset: ntu-xset120
+# mediapipe61-xsub, mediapipe61, mediapipe61-xsub120, mediapipe61-xset120
+dataset: mediapipe61
 dataset_args:
-  ntu:
+  mediapipe61:
     train_batch_size: 16
     eval_batch_size: 16
     num_frame: 288
     inputs: JVB
     transform: False
-    root_folder: ./data/npy_dataset
+    root_folder: /workspace/npy_converted_full_v3
     ntu60_path: ./data/raw_skeleton/nturgbd_skeletons_s001_to_s017
     ntu120_path: ./data/raw_skeleton/nturgbd_skeletons_s018_to_s032
 
