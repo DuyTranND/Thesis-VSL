@@ -15,7 +15,9 @@ nohup.out
 ft_sync.sh
 /nturgb+d_skeletons/
 .env
-/data/
+/data/npy_splits_new/
+/data/log/hdf5/
+/data/filtered_videos/
 .venv-backups
 *.pth
 *.pth.tar
