@@ -121,8 +121,8 @@ def process_split(args):
 
 if __name__ == '__main__':
     # Save global class names
-    h5_file = '/workspace/data/log/hdf5/cre_visl.h5'
-    output_dir = '/workspace/data/npy_splits_new'
+    h5_file = '/mnt/e/X_Others/HCMUTE/Thesis/code/thesis/cre_visl.h5'
+    output_dir = '/mnt/e/X_Others/HCMUTE/Thesis/code/thesis/Thesis-EfficientGCN/npy_splits_new'
     
     with h5py.File(h5_file, 'r') as f:
         raw_names = f['class_names'][()]
@@ -133,7 +133,7 @@ if __name__ == '__main__':
     # Prepare tasks and run
     split_keys = ['train_idx', 'val_idx', 'test_idx']
     tasks = [(h5_file, output_dir, key) for key in split_keys]
-    with Pool(processes=32) as pool:
+    with Pool(processes=16) as pool:
         for split_name in tqdm(pool.imap_unordered(process_split, tasks),
                                 total=len(tasks), desc="Splits", unit="split"):
             print(f"Completed split: {split_name}")
