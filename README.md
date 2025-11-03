@@ -3,7 +3,7 @@
 Skeleton-based Vietnamese Sign Language Recognition (VSLR) using EfficientGCN. The end-to-end pipeline includes K-Means keyframe selection, 61-landmark extraction with MediaPipe, graph-centric cleaning and augmentation, training EfficientGCN family models (B0, B2, B4), and a simple web demo built with Streamlit + FastAPI.
 
 <p align="center">
-  <img src="docs/pipeline.png" alt="Pipeline" width="85%"><br>
+  <img src="pipeline.jpg" alt="Pipeline" width="85%"><br>
   <em>Overview: Video -> 24 frames -> 61 landmarks -> 3 input branches -> EfficientGCN -> Prediction</em>
 </p>
 
