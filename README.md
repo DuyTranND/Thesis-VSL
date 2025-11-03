@@ -1,204 +1,250 @@
-# Efficient Graph Convolutional Network (EfficientGCN) (ResGCNv2.0)
+# Vietnamese Sign Language Recognition with EfficientGCN
 
-## 1 Paper Details
+Skeleton-based Vietnamese Sign Language Recognition (VSLR) using EfficientGCN. The end-to-end pipeline includes K-Means keyframe selection, 61-landmark extraction with MediaPipe, graph-centric cleaning and augmentation, training EfficientGCN family models (B0, B2, B4), and a simple web demo built with Streamlit + FastAPI.
 
-Yi-Fan Song, Zhang Zhang, Caifeng Shan and Liang Wang. **EfficientGCN: Constructing Stronger and Faster Baselines for Skeleton-based Action Recognition**. IEEE Transactions on Pattern Analysis and Machine Intelligence (T-PAMI), 2022. [[IEEE T-PAMI]](https://ieeexplore.ieee.org/abstract/document/9729609) [[Arxiv Preprint]](https://arxiv.org/pdf/2106.15125.pdf)
+<p align="center">
+  <img src="docs/pipeline.png" alt="Pipeline" width="85%"><br>
+  <em>Overview: Video -> 24 frames -> 61 landmarks -> 3 input branches -> EfficientGCN -> Prediction</em>
+</p>
 
-Previous version (ResGCN v1.0): [[Githee]](https://gitee.com/yfsong0709/ResGCNv1) [[ACMMM 2020]](https://dl.acm.org/doi/abs/10.1145/3394171.3413802) [[Arxiv Preprint]](https://arxiv.org/pdf/2010.09978.pdf)
+---
 
-The following pictures are the pipeline of EfficientGCN and the illustration of ST-JointAtt layer, respectively.
-<div align="center">
-    <img src="resources/pipeline.jpg">
-</div>
+## Features
 
-<div align="center">
-    <img src="resources/st_joint_att.jpg">
-</div>
+- Three input branches: **Joints**, **Velocity**, **Bones**
+- **24 frame** selection via K-Means for better motion coverage
+- **61 landmarks** per frame from MediaPipe (pose 19 + two hands 21x2)
+- Cleaning: left-right hand swap fix, missing-hand completion, coordinate normalization
+- Graph-aware augmentation: symmetric flip with joint remapping, region-wise scaling, mild temporal jitter, BFS-guided reconstruction
+- EfficientGCN variants **B0**, **B2**, **B4** with **ST-JointAtt**
+- Web demo: **Streamlit** frontend, **FastAPI** backend
 
+---
 
-## 2 Prerequisites
+## Repository Structure
 
-### 2.1 Libraries
-
-This code is based on [Python3](https://www.anaconda.com/) (anaconda, >= 3.5) and [PyTorch](http://pytorch.org/) (>= 1.6.0).
-
-Other Python libraries are presented in the **'scripts/requirements.txt'**, which can be installed by 
-```
-pip install -r scripts/requirements.txt
-```
-
-### 2.2 Experimental Dataset
-
-Our models are experimented on the **NTU RGB+D 60 & 120** datasets, which can be downloaded from 
-[here](http://rose1.ntu.edu.sg/datasets/actionrecognition.asp).
-
-There are 302 samples of **NTU RGB+D 60** and 532 samples of **NTU RGB+D 120** need to be ignored, which are shown in the **'src/preprocess/ignore.txt'**.
-
-### 2.3 Pretrained Models
-
-Several pretrained models are provided, which include **EfficientGCN-B0**, **EfficientGCN-B2**, and **EfficientGCN-B4** with **SG** and **EpSep** layers for the **cross-subject (X-sub)** and **cross-view (X-view)** benchmarks of the **NTU RGB+D 60** dataset and the **cross-subject (X-sub120)** and **cross-setup (X-set120)** benchmarks of the **NTU RGB+D 120** dataset.
-
-These models can be downloaded from [BaiduYun](https://pan.baidu.com/s/1gVjBx4p3lwPpyd_QUI1TiA) (Extraction code: **1c5x**) or [GoogleDrive](https://drive.google.com/drive/folders/1HpvkKyfmmOCzuJXemtDxQCgGGQmWMvj4?usp=sharing).
-
-
-## 3 Parameters
-
-Before training and evaluating, there are some parameters should be noticed.
-
-* (1) **'--config'** or **'-c'**: The config of EfficientGCN. You must use this parameter in the command line or the program will output an error. There are 12 configs given in the **configs** folder, which can be illustrated in the following tabel.
-
-| config    | 2001   | 2002   | 2003     | 2004     | 
-| :-------: | :----: | :----: | :------: | :------: |
-| model     | B0     | B0     | B0       | B0       |
-| layer     | SG     | SG     | SG       | SG       |
-| benchmark | X-sub  | X-view | X-sub120 | X-set120 |
-
-| config    | 2005   | 2006   | 2007     | 2008     |
-| :-------: | :----: | :----: | :------: | :------: |
-| model     | B2     | B2     | B2       | B2       |
-| layer     | SG     | SG     | SG       | SG       |
-| benchmark | X-sub  | X-view | X-sub120 | X-set120 |
-
-| config    | 2009   | 2010   | 2011     | 2012     |
-| :-------: | :----: | :----: | :------: | :------: |
-| model     | B4     | B4     | B4       | B4       |
-| layer     | SG     | SG     | SG       | SG       |
-| benchmark | X-sub  | X-view | X-sub120 | X-set120 |
-
-| config    | 2013   | 2014   | 2015     | 2016     | 
-| :-------: | :----: | :----: | :------: | :------: |
-| model     | B0     | B0     | B0       | B0       |
-| layer     | EpSep  | EpSep  | EpSep    | EpSep    |
-| benchmark | X-sub  | X-view | X-sub120 | X-set120 |
-
-| config    | 2017   | 2018   | 2019     | 2020     |
-| :-------: | :----: | :----: | :------: | :------: |
-| model     | B2     | B2     | B2       | B2       |
-| layer     | EpSep  | EpSep  | EpSep    | EpSep    |
-| benchmark | X-sub  | X-view | X-sub120 | X-set120 |
-
-| config    | 2021   | 2022   | 2023     | 2024     |
-| :-------: | :----: | :----: | :------: | :------: |
-| model     | B4     | B4     | B4       | B4       |
-| layer     | EpSep  | EpSep  | EpSep    | EpSep    |
-| benchmark | X-sub  | X-view | X-sub120 | X-set120 |
-
-* (2) **'--work_dir'** or **'-w'**: The path to workdir, for saving checkpoints and other running files. Default is **'./workdir'**.
-
-* (3) **'--pretrained_path'** or **'-pp'**: The path to the pretrained models. **pretrained_path = None** means using randomly initial model. Default is **None**.
-
-* (4) **'--resume'** or **'-r'**: Resume from the recent checkpoint (**'<--work_dir>/checkpoint.pth.tar'**).
-
-* (5) **'--evaluate'** or **'-e'**: Only evaluate models. You can choose the evaluating model according to the instructions.
-
-* (6) **'--extract'** or **'-ex'**: Extract features from a trained model for visualization. Using this parameter will make a data file named **'extraction_<--config>.npz'** at the **'./visualization'** folder.
-
-* (7) **'--visualization'** or **'-v'**: Show the information and details of a trained model. You should extract features by using **<--extract>** parameter before visualizing.
-
-* (8) **'--dataset'** or **'-d'**: Choose the dataset. (Choice: **[ntu-xsub, ntu-xview, ntu-xsub120, ntu-xset120]**)
-
-* (9) **'--model_type'** or **'-mt'**: Choose the model. (Format: **EfficientGCN-B{coefficient}**, e.g., EfficientGCN-B0, EfficientGCN-B2, EfficientGCN-B4)
-
-Other parameters can be updated by modifying the corresponding config file in the **'configs'** folder or using command line to send parameters to the model, and the parameter priority is **command line > yaml config > default value**.
-
-
-## 4 Running
-
-### 4.1 Modify Configs
-
-Firstly, you should modify the **'path'** parameters in all config files of the **'configs'** folder.
-
-A python file **'scripts/modify_configs.py'** will help you to do this. You need only to change three parameters in this file to your path to NTU datasets.
-```
-python scripts/modify_configs.py --path <path/to/save/numpy/data> --ntu60_path <path/to/ntu60/dataset> --ntu120_path <path/to/ntu120/dataset> --pretrained_path <path/to/save/pretraiined/model> --work_dir <path/to/work/dir>
-```
-All the commands above are optional.
-
-### 4.2 Generate Datasets
-
-After modifing the path to datasets, please generate numpy datasets by using **'scripts/auto_gen_data.sh'**.
-```
-bash scripts/auto_gen_data.sh
-```
-It may takes you about 2.5 hours, due to the preprocessing module for X-view benchmark (same as [2s-AGCN](https://github.com/lshiwjx/2s-AGCN)).
-
-To save time, you can only generate numpy data for one benchmark by the following command (only the first time to use this benchmark).
-```
-python main.py -c <config> -gd
-```
-where `<config>` is the config file name in the **'configs'** folder, e.g., 2001.
-
-**Note:** only training the X-view benchmark requires preprocessing module.
-
-### 4.3 Train
-
-You can simply train the model by 
-```
-python main.py -c <config>
-```
-If you want to restart training from the saved checkpoint last time, you can run
-```
-python main.py -c <config> -r
+```text
+.
+├─ README.md
+├─ requirements.txt
+├─ configs/
+│  ├─ b0.yaml
+│  ├─ b2.yaml
+│  └─ b4.yaml
+├─ data/
+│  ├─ raw/                # source videos
+│  ├─ interim/            # per-frame JSON/NPZ skeletons
+│  └─ processed/          # tensors for EfficientGCN (3 branches)
+├─ src/
+│  ├─ datasets/           # dataset wrappers, collate, graph utils
+│  ├─ models/             # EfficientGCN + ST-JointAtt
+│  ├─ preprocess/         # kmeans sampling, mediapipe, clean, augment
+│  ├─ train.py            # training loop
+│  ├─ eval.py             # evaluation
+│  └─ infer.py            # single-video inference
+├─ scripts/
+│  ├─ prepare_data.py     # raw video -> processed tensors (end-to-end)
+│  └─ visualize_skel.py   # quick skeleton visualization
+└─ web/
+   ├─ api/                # FastAPI (uvicorn)
+   │  └─ main.py
+   └─ app.py              # Streamlit app
 ```
 
-### 4.4 Evaluate
+> If your repo layout differs, keep the step logic and adjust paths in `configs/*.yaml`.
 
-Before evaluating, you should ensure that the trained model corresponding the config is already existed in the **<--pretrained_path>** or **'<--work_dir>'** folder. Then run
+---
+
+## Quickstart
+
+### 1) Setup
+
+```bash
+# Python 3.10+ is recommended
+python -m venv .venv
+# Windows: .venv\Scripts\activate
+source .venv/bin/activate
+pip install -U pip wheel
+pip install -r requirements.txt
 ```
-python main.py -c <config> -e
+
+### 2) Data Preparation
+
+Put your videos into `data/raw/`, then run:
+
+```bash
+# Steps inside the script:
+# 1) K-Means to pick 24 frames per video
+# 2) MediaPipe to extract 61 landmarks per frame
+# 3) Cleaning (swap-fix, missing-hand completion), normalization
+# 4) Graph-aware augmentation
+# 5) Produce 3-branch tensors in data/processed/
+python scripts/prepare_data.py \
+  --raw_dir data/raw \
+  --interim_dir data/interim \
+  --out_dir data/processed \
+  --num_frames 24
 ```
 
-### 4.5 Visualization
+Visual sanity-check for extracted skeletons:
 
-To visualize the details of the trained model, you can run
+```bash
+python scripts/visualize_skel.py --interim_dir data/interim --sample 3
 ```
-python main.py -c <config> -ex -v
+
+### 3) Train
+
+Pick a config from `configs/`:
+
+```bash
+# Train B0
+python src/train.py --config configs/b0.yaml \
+  --data_dir data/processed \
+  --work_dir workdir/b0
 ```
-where **'-ex'** can be removed if the data file **'extraction_`<config>`.npz'** already exists in the **'./visualization'** folder.
 
+Resume from the latest checkpoint:
 
-## 5 Results
-
-Top-1 Accuracy for the provided models on **NTU RGB+D 60 & 120** datasets.
-
-| models (SG)     | FLOPs  | parameters | NTU X-sub  | NTU X-view | NTU X-sub120 | NTU X-set120 |
-| :-------------: | :----: | :--------: | :--------: | :--------: | :----------: | :----------: |
-| EfficientGCN-B0 | 2.73G  | 0.29M      | 90.2%      | 94.9%      | 86.6%        | 85.0%        |
-| EfficientGCN-B2 | 4.05G  | 0.51M      | 91.4%      | 95.7%      | 88.0%        | 87.8%        |
-| EfficientGCN-B4 | 8.36G  | 1.10M      | **92.1%**  | **96.1%**  | **88.7%**    | **88.9%**    |
-
-| models (EpSep)  | FLOPs  | parameters | NTU X-sub  | NTU X-view | NTU X-sub120 | NTU X-set120 |
-| :-------------: | :----: | :--------: | :--------: | :--------: | :----------: | :----------: |
-| EfficientGCN-B0 | 3.08G  | 0.32M      | 89.9%      | 94.7%      | 85.9%        | 84.3%        |
-| EfficientGCN-B2 | 6.12G  | 0.79M      | 90.9%      | 95.5%      | 87.9%        | 88.0%        |
-| EfficientGCN-B4 | 15.24G | 2.03M      | **91.7%**  | **95.7%**  | **88.3%**    | **89.1%**    |
-
-## 6 Citation and Contact
-
-If you have any question, please send e-mail to `574839023@qq.com`.
-
-Please cite our paper when you use this code in your research.
+```bash
+python src/train.py --config configs/b0.yaml --work_dir workdir/b0 --resume
 ```
+
+### 4) Evaluate
+
+```bash
+python src/eval.py --config configs/b0.yaml \
+  --data_dir data/processed \
+  --checkpoint workdir/b0/checkpoint.pth
+```
+
+### 5) Inference on a Single Video
+
+```bash
+python src/infer.py \
+  --video path/to/video.mp4 \
+  --checkpoint workdir/b0/checkpoint.pth \
+  --out_json result.json
+```
+
+### 6) Web Demo
+
+```bash
+# Backend
+uvicorn web.api.main:app --host 0.0.0.0 --port 8000
+
+# Frontend
+streamlit run web/app.py
+```
+
+---
+
+## Sample Configuration
+
+`configs/b0.yaml`:
+
+```yaml
+model:
+  name: EfficientGCN
+  variant: B0                # B0, B2, or B4
+  st_joint_att: true
+  num_classes:  # fill with your number of signs
+
+data:
+  dir: data/processed
+  num_frames: 24
+  in_branches: [joints, velocity, bones]
+  train_split: train.json
+  val_split: val.json
+
+train:
+  epochs: 30
+  batch_size: 64
+  lr: 1e-3
+  wd: 1e-4
+  optimizer: adamw
+  scheduler: cosine
+
+augment:
+  flip: true
+  time_jitter: 0.1
+  scale_region: {body: 0.02, hand: 0.03}
+  bfs_reconstruct: true
+
+misc:
+  seed: 42
+  num_workers: 4
+  amp: true
+```
+
+---
+
+## EfficientGCN Input Specification
+
+- **Tensor shape**: `[N, C, T, V, M]`
+  - `N`: batch size
+  - `C`: channels (2D or 3D coords, optional confidence)
+  - `T`: temporal length (24)
+  - `V`: number of joints
+  - `M`: number of people (usually 1)
+- **Joints**: normalized coordinates anchored to a stable reference (nose or wrist).
+- **Velocity**: temporal differences of joints, same normalization.
+- **Bones**: vectors along graph edges (parent -> child).
+- **Graph**: vertex set `V`, edge set `E`, adjacency matrices for pose and both hands. Horizontal flip requires symmetric joint remapping.
+
+> If you use 2D MediaPipe coordinates, keep normalization and confidence masking consistent to reduce noise.
+
+---
+
+## Results (to be updated)
+
+- With the 24-frame, 61-landmark pipeline, EfficientGCN shows fast convergence and strong validation accuracy.
+- With B0 plus graph-aware augmentation, validation typically stabilizes around epoch 6-7.
+- Exact metrics depend on the number of classes, train-val-test split, and augmentation strategy.
+
+> Add your official logs and plots to `docs/results.md` and embed a loss/accuracy figure here once available.
+
+---
+
+## Practical Tips
+
+- Enable `--amp` for mixed precision speedups.
+- Set seeds and `cudnn.deterministic` when you need reproducibility.
+- Carefully verify left-right mapping when applying horizontal flips.
+- For very short or long videos, K-Means keyframe selection often outperforms uniform sampling.
+
+---
+
+## Roadmap
+
+- [ ] Add face landmarks to capture lip shapes and expressions
+- [ ] Few-shot augmentation for rare classes
+- [ ] Export TorchScript or ONNX and add a realtime demo
+
+---
+
+## Citation
+
+If you use EfficientGCN or this pipeline in your research, please cite:
+
+```bibtex
 @article{song2022constructing,
   author    = {Song, Yi-Fan and Zhang, Zhang and Shan, Caifeng and Wang, Liang},
-  title     = {Constructing stronger and faster baselines for skeleton-based action recognition},
+  title     = {Constructing Stronger and Faster Baselines for Skeleton-based Action Recognition},
   journal   = {IEEE Transactions on Pattern Analysis and Machine Intelligence},
   year      = {2022},
-  publisher = {IEEE},
-  url       = {https://doi.org/10.1109/TPAMI.2022.3157033},
   doi       = {10.1109/TPAMI.2022.3157033}
 }
+```
 
-@inproceedings{song2020stronger,
-  author    = {Song, Yi-Fan and Zhang, Zhang and Shan, Caifeng and Wang, Liang},
-  title     = {Stronger, Faster and More Explainable: A Graph Convolutional Baseline for Skeleton-Based Action Recognition},
-  booktitle = {Proceedings of the 28th ACM International Conference on Multimedia (ACMMM)},
-  pages     = {1625--1633},
-  year      = {2020},
-  isbn      = {9781450379885},
-  publisher = {Association for Computing Machinery},
-  address   = {New York, NY, USA},
-  url       = {https://doi.org/10.1145/3394171.3413802},
-  doi       = {10.1145/3394171.3413802},
-}
+---
+
+## License
+
+MIT License. See `LICENSE` for details.
+
+## Acknowledgements
+
+- EfficientGCN and the broader skeleton-based action recognition community
+- MediaPipe for pose and hand landmark extraction
+- Open-source contributors who made this work possible
 ```
