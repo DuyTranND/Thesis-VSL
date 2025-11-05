@@ -195,7 +195,7 @@ misc:
 
 ---
 
-## Results (to be updated)
+## Results
 
 - With the 24-frame, 61-landmark pipeline, EfficientGCN shows fast convergence and strong validation accuracy.
 - With B0 plus graph-aware augmentation, validation typically stabilizes around epoch 6-7.
@@ -211,14 +211,6 @@ misc:
 - Set seeds and `cudnn.deterministic` when you need reproducibility.
 - Carefully verify left-right mapping when applying horizontal flips.
 - For very short or long videos, K-Means keyframe selection often outperforms uniform sampling.
-
----
-
-## Roadmap
-
-- [ ] Add face landmarks to capture lip shapes and expressions
-- [ ] Few-shot augmentation for rare classes
-- [ ] Export TorchScript or ONNX and add a realtime demo
 
 ---
 
