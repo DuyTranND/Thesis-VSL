@@ -27,8 +27,8 @@ Skeleton-based Vietnamese Sign Language Recognition (VSLR) using EfficientGCN. T
 │  ├─ eval.py             # evaluation
 │  └─ infer.py            # single-video inference
 └─ app/
-   ├─ main.py               # FastAPI (uvicorn)
-   └─ ui.py              # Streamlit app
+   ├─ main.py             # FastAPI (uvicorn)
+   └─ ui.py               # Streamlit app
 ```
 
 ---
